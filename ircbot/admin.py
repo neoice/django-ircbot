@@ -13,8 +13,9 @@ class IRCHostInline(admin.TabularInline):
 	model = IRCHost
 
 class IRCUserAdmin(VersionAdmin):
-	inlines = [IRCHostInline]
+	inlines = [ IRCHostInline ]
 
+	# only allow users to set their AutoMode up to their user level.
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == "user":
 			kwargs['queryset'] = User.objects.all()
@@ -28,10 +29,15 @@ class IRCUserAdmin(VersionAdmin):
 				pass
 
 class IRCCommandAdmin(VersionAdmin):
-	list_display = [ 'name', 'command' ]
+	list_display = [ 'name', 'command', 'level', 'color' ]
+	list_filter = [ 'level' ]
 
 class IRCActionAdmin(VersionAdmin):
+	# list
 	list_display = [ 'datetime', 'user', 'command', 'args', 'performed' ]
+	list_filter = [ 'user' ]
+
+	# add/edit form
 	exclude = [ 'performed' ]
 
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -43,6 +49,7 @@ class IRCActionAdmin(VersionAdmin):
 			except:
 				pass
 
+	# enforce User
 	def save_model(self, request, obj, form, change):
 		if getattr(obj, 'user', None) is None:
 			obj.user = request.user
