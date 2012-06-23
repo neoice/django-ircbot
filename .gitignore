@@ -3,4 +3,4 @@ settings.py
 __init__.py
 ircutils
 reversion
-daemon.py
+bot.cfg
