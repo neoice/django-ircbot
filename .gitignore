@@ -1,0 +1,6 @@
+settings.py
+*.pyc
+__init__.py
+ircutils
+reversion
+daemon.py
