@@ -5,6 +5,7 @@ class IRCCommand(models.Model):
 	name = models.CharField(max_length=63)
 	command = models.CharField(max_length=63)
 	level = models.IntegerField()
+	color = models.CharField(max_length=63, null=True, blank=True)
 
 	def __unicode__(self):
 		return self.name

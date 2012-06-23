@@ -24,15 +24,32 @@ class DjangoBot(bot.SimpleBot):
 		if configs['NICKSERV']:
 			self.identify( configs['NS_PASS'] )
 
+	def on_ctcp_version(self, event):
+		self.send_ctcp_reply(event.source, "VERSION", ["LeelaBot v0"])
+
 	#TODO: remove core logic from event handler
 	def on_message(self, event):
 		actions = IRCAction.objects.filter(performed=False)
 		for each in actions:
 			c = each.command.command.split()
-			if c[0] == "KICK":
-				self.execute( str(c[0]), str(event.target), str(each.args) )
-			elif c[0] == "MODE":
+			if c[0] == "MODE":
 				self.execute( str(c[0]), str(event.target), str(c[1]), str(each.args) )
+			else:
+				if len(each.args) == 1:
+					self.execute( str(c[0]), str(event.target), str(each.args) )
+				else:
+					qargs = each.args.split("\"")
+					#TODO: I hate this.
+					if len(qargs) == 1:
+						if each.command.color:
+							self.execute( str(c[0]), str(event.target), trailing=format.color(str(qargs[0]), format.RED) )
+						else:
+							self.execute( str(c[0]), str(event.target), trailing=str(qargs[0]) )
+					else:
+						if each.command.color:
+							self.execute( str(c[0]), str(event.target), str(qargs[0]), trailing=str(qargs[1]) )
+						else:
+							self.execute( str(c[0]), str(event.target), str(qargs[0]), trailing=format.color(str(qargs[1]), format.RED) )
 			each.performed = True
 			each.save()
 
