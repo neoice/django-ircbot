@@ -35,8 +35,10 @@ class IRCHost(models.Model):
 class IRCAction(models.Model):
 	datetime = models.DateTimeField(auto_now_add=True)
 	user = models.ForeignKey(User, null=True, blank=True)
-	command = models.ForeignKey(IRCCommand)
-	args = models.CharField(max_length=1023, null=True, blank=True)
+	command = models.ForeignKey(IRCCommand, help_text = "note: not all commands take both arguments.")
+
+	target = models.CharField(max_length=63, null=True, blank=True, help_text = "for commands that effect a single user, this is required")
+	args = models.CharField(max_length=1023, null=True, blank=True, help_text = "for commands that do not effect a single user, this is required. it may have an effect on single user commands as well")
 	performed = models.BooleanField()
 
 	def __unicode__(self):

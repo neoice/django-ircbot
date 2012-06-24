@@ -34,8 +34,8 @@ class IRCCommandAdmin(VersionAdmin):
 
 class IRCActionAdmin(VersionAdmin):
 	# list
-	list_display = [ 'datetime', 'user', 'command', 'args', 'performed' ]
-	list_filter = [ 'user' ]
+	list_display = [ 'datetime', 'user', 'command', 'target', 'args', 'performed' ]
+	list_filter = [ 'user', 'command', 'target' ]
 
 	# add/edit form
 	exclude = [ 'performed' ]

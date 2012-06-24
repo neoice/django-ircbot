@@ -33,23 +33,20 @@ class DjangoBot(bot.SimpleBot):
 		for each in actions:
 			c = each.command.command.split()
 			if c[0] == "MODE":
-				self.execute( str(c[0]), str(event.target), str(c[1]), str(each.args) )
+				self.execute( str(c[0]), str(event.target), str(c[1]), str(each.target) )
 			else:
-				if len(each.args) == 1:
-					self.execute( str(c[0]), str(event.target), str(each.args) )
-				else:
-					qargs = each.args.split("\"")
-					#TODO: I hate this.
-					if len(qargs) == 1:
-						if each.command.color:
-							self.execute( str(c[0]), str(event.target), trailing=format.color(str(qargs[0]), format.RED) )
-						else:
-							self.execute( str(c[0]), str(event.target), trailing=str(qargs[0]) )
+				if each.args:
+					if each.command.color:
+						output = format.color( str(each.args), format.RED )
 					else:
-						if each.command.color:
-							self.execute( str(c[0]), str(event.target), str(qargs[0]), trailing=str(qargs[1]) )
-						else:
-							self.execute( str(c[0]), str(event.target), str(qargs[0]), trailing=format.color(str(qargs[1]), format.RED) )
+						output = str(each.args)
+				if each.target and each.args:
+					self.execute( str(c[0]), str(event.target), str(each.target), trailing=output )
+				elif each.target:
+					self.execute( str(c[0]), str(event.target), str(each.target) )
+				else:
+					self.execute( str(c[0]), str(event.target), trailing=output )
+
 			each.performed = True
 			each.save()
 
