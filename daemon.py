@@ -14,8 +14,13 @@ from ircutils import bot, format, start_all
 
 # python
 import ConfigParser
+from threading import Timer
+from time import sleep
 
 class DjangoBot(bot.SimpleBot):
+	def on_any(self, event):
+		disconnected = False
+
 	### events ###
 	#TODO: support IRCChannels
 	def on_welcome(self, event):
@@ -25,7 +30,13 @@ class DjangoBot(bot.SimpleBot):
 			self.identify( configs['NS_PASS'] )
 
 	def on_ctcp_version(self, event):
-		self.send_ctcp_reply(event.source, "VERSION", ["LeelaBot v0"])
+		self.send_ctcp_reply(event.source, "VERSION", ["DjangoBot v0"])
+
+	# auto-rejoin
+	# TODO: multi-channel support?
+	def on_kick(self, event):
+		if event.params[0] == self.nickname:
+			self.join( configs['CHANNEL'] )
 
 	#TODO: remove core logic from event handler
 	def on_message(self, event):
@@ -88,6 +99,20 @@ def config_parsing():
 
 if __name__ == "__main__":
 	configs = config_parsing()
+
+	disconnected = True
+	def bot_poll():
+		while True:
+			sleep(120)
+			disconnected = True
+
+			if disconnected:
+				bot.connect( configs['SERVER'] )
+				bot.start()
+
+
+	poller = Timer(5.0, bot_poll)
+	poller.start()
 
 	bot = DjangoBot( configs['NICK'] )
 	bot.connect( configs['SERVER'] )
