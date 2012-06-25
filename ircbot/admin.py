@@ -39,7 +39,14 @@ class IRCActionAdmin(VersionAdmin):
 
 	# add/edit form
 	exclude = [ 'performed' ]
+	readonly_fields = []
 
+	def get_readonly_fields(self, request, obj=None):
+		if obj:
+			return self.readonly_fields + ['command', 'target', 'args']
+		return self.readonly_fields
+
+	# only allow users to issue commands that are allowed for their userlevel
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == "command":
 			try:
@@ -54,7 +61,6 @@ class IRCActionAdmin(VersionAdmin):
 		if getattr(obj, 'user', None) is None:
 			obj.user = request.user
 		obj.save()
-
 
 admin.site.register(IRCAutoMode)
 admin.site.register(IRCUser, IRCUserAdmin)
