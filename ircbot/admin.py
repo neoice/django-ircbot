@@ -27,8 +27,7 @@ class IRCUserAdmin(VersionAdmin):
 			return db_field.formfield(**kwargs)
 		if db_field.name == "automode":
 			try:
-				ircuser = IRCUser.objects.get(user=request.user)
-				kwargs['queryset'] = IRCAutoMode.objects.filter(command__level__lte=ircuser.level)
+				kwargs['queryset'] = IRCAutoMode.objects.filter(command__level__lte=request.user.profile.irc_level)
 				return db_field.formfield(**kwargs)
 			except:
 				pass
@@ -55,8 +54,7 @@ class IRCActionAdmin(VersionAdmin):
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == "command":
 			try:
-				ircuser = IRCUser.objects.get(user=request.user)
-				kwargs['queryset'] = IRCCommand.objects.filter(level__lte=ircuser.level)
+				kwargs['queryset'] = IRCCommand.objects.filter(level__lte=request.user.profile.irc_level)
 				return db_field.formfield(**kwargs)
 			except:
 				pass
