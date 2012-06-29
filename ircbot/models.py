@@ -17,16 +17,7 @@ class IRCAutoMode(models.Model):
 	def __unicode__(self):
 		return self.name
 
-class IRCUser(models.Model):
-	user = models.ForeignKey(User)
-	automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
-	level = models.IntegerField()
-
-	def __unicode__(self):
-		return self.user.username
-
 class IRCHost(models.Model):
-	user = models.ForeignKey(IRCUser)
 	hostname = models.CharField(max_length=255)
 
 	def __unicode__(self):
@@ -39,6 +30,7 @@ class IRCAction(models.Model):
 
 	target = models.CharField(max_length=63, null=True, blank=True, help_text = "for commands that effect a single user, this is required")
 	args = models.CharField(max_length=1023, null=True, blank=True, help_text = "for commands that do not effect a single user, this is required. it may have an effect on single user commands as well")
+	comment = models.CharField(max_length=1023, null=True, blank=True, help_text = "it is **highly** recommended to include a comment.")
 	performed = models.BooleanField()
 
 	def __unicode__(self):
@@ -48,5 +40,7 @@ class UserProfile(models.Model):
 	user = models.OneToOneField(User)
 	irc_level = models.IntegerField()
 	vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
+	# moved here even though we don't support automodes currently
+	#automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])

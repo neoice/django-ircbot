@@ -7,7 +7,7 @@ sys.path.append("/home/ecanada/django/ircbot_app")
 os.environ["DJANGO_SETTINGS_MODULE"] = "ircbot_app.settings"
 
 # django
-from ircbot.models import IRCUser, IRCHost, IRCCommand, IRCAction
+from ircbot.models import IRCHost, IRCCommand, IRCAction
 
 # irc
 from ircutils import bot, format, start_all
@@ -61,14 +61,15 @@ class DjangoBot(bot.SimpleBot):
 			each.performed = True
 			each.save()
 
-	def on_join(self, event):
-		users = IRCUser.objects.filter(irchost__hostname=event.host)
+	#TODO: fix automodes
+	#def on_join(self, event):
+	#	users = IRCUser.objects.filter(irchost__hostname=event.host)
 
-		if users:
-			user = users[0]
-			if user.automode:
-				c = user.automode.command.command.split()
-				self.execute( str(c[0]), str(event.target), str(c[1]), str(event.source) )
+	#	if users:
+	#		user = users[0]
+	#		if user.automode:
+	#			c = user.automode.command.command.split()
+	#			self.execute( str(c[0]), str(event.target), str(c[1]), str(event.source) )
 
 def config_parsing():
 	# open config file
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 				bot.start()
 
 
-	poller = Timer(5.0, bot_poll)
+	poller = Timer(15.0, bot_poll)
 	poller.start()
 
 	bot = DjangoBot( configs['NICK'] )

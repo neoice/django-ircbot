@@ -8,7 +8,7 @@ from django import forms
 from reversion.admin import VersionAdmin
 
 # models
-from ircbot.models import IRCUser, IRCHost, IRCCommand, IRCAction, IRCAutoMode
+from ircbot.models import IRCHost, IRCCommand, IRCAction, IRCAutoMode
 from ircbot.models import UserProfile
 
 class IRCHostAdmin(VersionAdmin):
@@ -16,21 +16,6 @@ class IRCHostAdmin(VersionAdmin):
 
 class IRCHostInline(admin.TabularInline):
 	model = IRCHost
-
-class IRCUserAdmin(VersionAdmin):
-	inlines = [ IRCHostInline ]
-
-	# only allow users to set their AutoMode up to their user level.
-	def formfield_for_foreignkey(self, db_field, request, **kwargs):
-		if db_field.name == "user":
-			kwargs['queryset'] = User.objects.all()
-			return db_field.formfield(**kwargs)
-		if db_field.name == "automode":
-			try:
-				kwargs['queryset'] = IRCAutoMode.objects.filter(command__level__lte=request.user.profile.irc_level)
-				return db_field.formfield(**kwargs)
-			except:
-				pass
 
 class IRCCommandAdmin(VersionAdmin):
 	list_display = [ 'name', 'command', 'level', 'color' ]
@@ -66,7 +51,6 @@ class IRCActionAdmin(VersionAdmin):
 		obj.save()
 
 admin.site.register(IRCAutoMode)
-admin.site.register(IRCUser, IRCUserAdmin)
 admin.site.register(IRCHost, IRCHostAdmin)
 admin.site.register(IRCCommand, IRCCommandAdmin)
 admin.site.register(IRCAction, IRCActionAdmin)
