@@ -1,1 +1,12 @@
-requires ircutils and django-reversion
+requires: ircutils
+recommends: django-reversion (provides a better audit trail)
+
+a simple IRC bot that uses Django admin panel as a web interface.
+
+TODO:
+	add multi-channel support
+	add license (BSD of some sort)
+	add example config
+	fix TODOs in code
+	better color/format support
+	better readme/docs (esp re: design decisions)
