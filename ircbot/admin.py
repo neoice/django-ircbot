@@ -63,6 +63,8 @@ class UserProfileInline(admin.StackedInline):
 	fk_name = 'user'
 
 class UserProfileAdmin(UserAdmin):
+	list_display = [ 'username', 'email', 'is_staff', 'is_superuser', 'profile' ]
+
 	inlines = [ UserProfileInline ]
 
 admin.site.register(User, UserProfileAdmin)

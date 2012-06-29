@@ -43,4 +43,7 @@ class UserProfile(models.Model):
 	# moved here even though we don't support automodes currently
 	#automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
 
+	def __unicode__(self):
+		return str(self.irc_level)
+
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
