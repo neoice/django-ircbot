@@ -103,7 +103,9 @@ if __name__ == "__main__":
 	disconnected = True
 	def bot_poll():
 		while True:
-			sleep(120)
+			# PING/PONG occurs every 60s, so I thought 120 would
+			# be plenty, but it didn't seem to work.
+			sleep(180)
 			disconnected = True
 
 			if disconnected:
