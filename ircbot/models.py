@@ -43,3 +43,10 @@ class IRCAction(models.Model):
 
 	def __unicode__(self):
 		return str(self.datetime) + ": " + self.user.username + ": " + self.command.name + " " + self.args
+
+class UserProfile(models.Model):
+	user = models.OneToOneField(User)
+	irc_level = models.IntegerField()
+	vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
+
+User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
