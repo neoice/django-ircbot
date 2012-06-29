@@ -1,10 +1,15 @@
+# django
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 from django import forms
 
-from ircbot.models import IRCUser, IRCHost, IRCCommand, IRCAction, IRCAutoMode
-
+# history tracking
 from reversion.admin import VersionAdmin
+
+# models
+from ircbot.models import IRCUser, IRCHost, IRCCommand, IRCAction, IRCAutoMode
+from ircbot.models import UserProfile
 
 class IRCHostAdmin(VersionAdmin):
 	pass
@@ -67,3 +72,15 @@ admin.site.register(IRCUser, IRCUserAdmin)
 admin.site.register(IRCHost, IRCHostAdmin)
 admin.site.register(IRCCommand, IRCCommandAdmin)
 admin.site.register(IRCAction, IRCActionAdmin)
+
+# User.Profile
+admin.site.unregister(User)
+
+class UserProfileInline(admin.StackedInline):
+	model = UserProfile
+	fk_name = 'user'
+
+class UserProfileAdmin(UserAdmin):
+	inlines = [ UserProfileInline ]
+
+admin.site.register(User, UserProfileAdmin)
