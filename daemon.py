@@ -7,6 +7,7 @@ sys.path.append("/home/ecanada/django/ircbot_app")
 os.environ["DJANGO_SETTINGS_MODULE"] = "ircbot_app.settings"
 
 # django
+from django.contrib.auth.models import User
 from ircbot.models import IRCHost, IRCCommand, IRCAction
 
 # irc
@@ -18,7 +19,61 @@ from threading import Timer
 from time import sleep
 
 class DjangoBot(bot.SimpleBot):
+	def process_queue(self, event):
+		actions = IRCAction.objects.filter(performed=False)
+		for each in actions:
+			c = each.command.command.split()
+			if c[0] == "MODE":
+				self.execute( str(c[0]), str(event.target), str(c[1]), str(each.target) )
+			else:
+				if each.args:
+					if each.command.color:
+						output = format.color( str(each.args), format.RED )
+					else:
+						output = str(each.args)
+				if each.target and each.args:
+					self.execute( str(c[0]), str(event.target), str(each.target), trailing=output )
+				elif each.target:
+					self.execute( str(c[0]), str(event.target), str(each.target) )
+				else:
+					self.execute( str(c[0]), str(event.target), trailing=output )
+
+			each.performed = True
+			each.save()
+
+	def process_chat_command(self, event):
+		#TODO: replace filter() with get() ??
+		user = User.objects.filter(userprofile__vhosts__hostname=event.host)[0]
+
+		if user:
+			msg = event.params[0]
+
+			#TODO: actually handle some exceptions here.
+			try:
+				if msg[0] == "!":
+					chat_command = msg.split()[0]
+					target = msg.split()[1]
+					#TODO: replace filter() with get() ??
+					cmd = IRCCommand.objects.filter(chat_command=chat_command)[0]
+
+					if user.userprofile.level >= cmd.level:
+						new_action = IRCAction()
+						new_action.command = cmd
+						new_action.user = user
+						new_action.target = target
+						new_action.args = ''
+						new_action.comment = "issued via msg: " + str(event.params[0])
+						new_action.performed = False
+						new_action.save()
+						self.process_queue(event)
+					else:
+						self.send_message(event.source, "permission denied")
+			except:
+				pass
+
+
 	def on_any(self, event):
+		self.process_queue(event)
 		disconnected = False
 
 	### events ###
@@ -40,26 +95,7 @@ class DjangoBot(bot.SimpleBot):
 
 	#TODO: remove core logic from event handler
 	def on_message(self, event):
-		actions = IRCAction.objects.filter(performed=False)
-		for each in actions:
-			c = each.command.command.split()
-			if c[0] == "MODE":
-				self.execute( str(c[0]), str(event.target), str(c[1]), str(each.target) )
-			else:
-				if each.args:
-					if each.command.color:
-						output = format.color( str(each.args), format.RED )
-					else:
-						output = str(each.args)
-				if each.target and each.args:
-					self.execute( str(c[0]), str(event.target), str(each.target), trailing=output )
-				elif each.target:
-					self.execute( str(c[0]), str(event.target), str(each.target) )
-				else:
-					self.execute( str(c[0]), str(event.target), trailing=output )
-
-			each.performed = True
-			each.save()
+		self.process_chat_command(event)
 
 	#TODO: fix automodes
 	#def on_join(self, event):
@@ -106,10 +142,14 @@ if __name__ == "__main__":
 		while True:
 			# PING/PONG occurs every 60s, so I thought 120 would
 			# be plenty, but it didn't seem to work.
+			#TODO TODO TODO:
+			# switch to a datetime instead of a true/false because of this absolutely stupid bug here.
 			sleep(180)
 			disconnected = True
 
+
 			if disconnected:
+				bot.disconnect()
 				bot.connect( configs['SERVER'] )
 				bot.start()
 

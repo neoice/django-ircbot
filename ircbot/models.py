@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 class IRCCommand(models.Model):
 	name = models.CharField(max_length=63)
 	command = models.CharField(max_length=63)
+	chat_command = models.CharField(max_length=63)
 	level = models.IntegerField()
 	color = models.CharField(max_length=63, null=True, blank=True)
 
@@ -38,12 +39,12 @@ class IRCAction(models.Model):
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
-	irc_level = models.IntegerField()
+	level = models.IntegerField()
 	vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
 	# moved here even though we don't support automodes currently
 	#automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
 
 	def __unicode__(self):
-		return str(self.irc_level)
+		return str(self.level)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
