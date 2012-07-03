@@ -15,10 +15,13 @@ from ircutils import bot, format, start_all
 
 # python
 import ConfigParser
+from datetime import datetime, timedelta
 from threading import Timer
 from time import sleep
 
 class DjangoBot(bot.SimpleBot):
+	last_event = datetime.now()
+
 	def process_queue(self, event):
 		actions = IRCAction.objects.filter(performed=False)
 		for each in actions:
@@ -72,11 +75,11 @@ class DjangoBot(bot.SimpleBot):
 				pass
 
 
+	### events ###
 	def on_any(self, event):
 		self.process_queue(event)
-		disconnected = False
+		self.last_event = datetime.now()
 
-	### events ###
 	#TODO: support IRCChannels
 	def on_welcome(self, event):
 		self.join( configs['CHANNEL'] )
@@ -137,18 +140,14 @@ def config_parsing():
 if __name__ == "__main__":
 	configs = config_parsing()
 
-	disconnected = True
+	timeout = timedelta(0, 180)
 	def bot_poll():
 		while True:
-			# PING/PONG occurs every 60s, so I thought 120 would
-			# be plenty, but it didn't seem to work.
-			#TODO TODO TODO:
-			# switch to a datetime instead of a true/false because of this absolutely stupid bug here.
-			sleep(180)
-			disconnected = True
+			sleep(30)
+			time_since_last = datetime.now() - bot.last_event
 
-
-			if disconnected:
+			if ( time_since_last > timeout):
+				print "we look disconnected!"
 				bot.disconnect()
 				bot.connect( configs['SERVER'] )
 				bot.start()
