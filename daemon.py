@@ -22,6 +22,44 @@ from time import sleep
 class DjangoBot(bot.SimpleBot):
 	last_event = datetime.now()
 
+	def log_event(self, event):
+		target = ''
+		args = ''
+
+		# determine command
+		if event.command == "MODE":
+			full = "MODE " + event.params[0]
+			try:
+				cmd = IRCCommand.objects.get(command=full)
+				target = event.params[1]
+			except IRCCommand.DoesNotExist:
+				return
+		else:
+			try:
+				cmd = IRCCommand.objects.get(command=event.command)
+				target = event.params[0]
+			except IRCCommand.DoesNotExist:
+				return
+
+		comment = "issued via command"
+	
+		# find user
+		#TODO: handle unknown user
+		try:
+			user = IRCHost.objects.get(hostname=event.host).user
+		except IRCHost.DoesNotExist:
+			comment += ": " + str(event.source) + "@" + str(event.host)
+			user = User.objects.get(username="UNKNOWN")
+
+		new_action = IRCAction()
+		new_action.user = user
+		new_action.command = cmd
+		new_action.target = target
+		new_action.args = args
+		new_action.comment = comment
+		new_action.performed = True
+		new_action.save()
+
 	def process_queue(self, event):
 		actions = IRCAction.objects.filter(performed=False)
 		for each in actions:
@@ -45,32 +83,44 @@ class DjangoBot(bot.SimpleBot):
 			each.save()
 
 	def process_chat_command(self, event):
-		#TODO: replace filter() with get() ??
-		user = User.objects.filter(userprofile__vhosts__hostname=event.host)[0]
+		# does an authorized user even exist?
+		try:
+			user = IRCHost.objects.get(hostname=event.host).user
+		except IRCHost.DoesNotExist:
+			return
 
-		if user:
-			msg = event.params[0]
+		# were we issued a valid command?
+		msg = event.params[0]
+		if msg[0] == "!":
+			tokens = msg.split()
+			chat_command = tokens[0]
 
+			try:
+				cmd = IRCCommand.objects.get(chat_command=chat_command)
+			except IRCCommand.DoesNotExist:
+				return
+
+			# who is the target?
+			if len(tokens) == 1:
+				target = event.source
+			else:
+				target = tokens[1]
+
+			# is the user allowed to issue this command?
 			#TODO: actually handle some exceptions here.
 			try:
-				if msg[0] == "!":
-					chat_command = msg.split()[0]
-					target = msg.split()[1]
-					#TODO: replace filter() with get() ??
-					cmd = IRCCommand.objects.filter(chat_command=chat_command)[0]
-
-					if user.userprofile.level >= cmd.level:
-						new_action = IRCAction()
-						new_action.command = cmd
-						new_action.user = user
-						new_action.target = target
-						new_action.args = ''
-						new_action.comment = "issued via msg: " + str(event.params[0])
-						new_action.performed = False
-						new_action.save()
-						self.process_queue(event)
-					else:
-						self.send_message(event.source, "permission denied")
+				if user.userprofile.level >= cmd.level:
+					new_action = IRCAction()
+					new_action.command = cmd
+					new_action.user = user
+					new_action.target = target
+					new_action.args = ''
+					new_action.comment = "issued via msg: " + str(event.params[0])
+					new_action.performed = False
+					new_action.save()
+					self.process_queue(event)
+				else:
+					self.send_notice(event.source, "permission denied")
 			except:
 				pass
 
@@ -78,6 +128,7 @@ class DjangoBot(bot.SimpleBot):
 	### events ###
 	def on_any(self, event):
 		self.process_queue(event)
+		self.log_event(event)
 		self.last_event = datetime.now()
 
 	#TODO: support IRCChannels
