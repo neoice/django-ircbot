@@ -2,9 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class IRCCommand(models.Model):
-	name = models.CharField(max_length=63)
-	command = models.CharField(max_length=63)
-	chat_command = models.CharField(max_length=63)
+	name = models.CharField(max_length=63, unique=True)
+	command = models.CharField(max_length=63, unique=True)
+	chat_command = models.CharField(max_length=63, unique=True)
 	level = models.IntegerField()
 	color = models.CharField(max_length=63, null=True, blank=True)
 
@@ -19,7 +19,8 @@ class IRCAutoMode(models.Model):
 		return self.name
 
 class IRCHost(models.Model):
-	hostname = models.CharField(max_length=255)
+	user = models.ForeignKey(User)
+	hostname = models.CharField(max_length=255, unique=True)
 
 	def __unicode__(self):
 		return self.hostname
@@ -40,7 +41,7 @@ class IRCAction(models.Model):
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
 	level = models.IntegerField()
-	vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
+	#vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
 	# moved here even though we don't support automodes currently
 	#automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
 

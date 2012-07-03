@@ -18,12 +18,12 @@ class IRCHostInline(admin.TabularInline):
 	model = IRCHost
 
 class IRCCommandAdmin(VersionAdmin):
-	list_display = [ 'name', 'command', 'level', 'color' ]
+	list_display = [ 'name', 'command', 'chat_command', 'level', 'color' ]
 	list_filter = [ 'level' ]
 
 class IRCActionAdmin(VersionAdmin):
 	# list
-	list_display = [ 'datetime', 'user', 'command', 'target', 'args', 'performed' ]
+	list_display = [ 'datetime', 'user', 'command', 'target', 'args', 'comment', 'performed' ]
 	list_filter = [ 'user', 'command', 'target' ]
 
 	# add/edit form
@@ -64,7 +64,16 @@ class UserProfileInline(admin.StackedInline):
 
 class UserProfileAdmin(UserAdmin):
 	list_display = [ 'username', 'email', 'is_staff', 'is_superuser', 'profile' ]
+	list_filter = ['groups' ]
 
-	inlines = [ UserProfileInline ]
+	readonly_fields = [ ]
+
+	def get_readonly_fields(self, request, obj=None):
+		if request.user.is_superuser:
+			return self.readonly_fields
+		else:
+			return self.readonly_fields + [ 'is_superuser', 'user_permissions', 'last_login', 'date_joined', 'first_name', 'last_name' ]
+
+	inlines = [ UserProfileInline, IRCHostInline ]
 
 admin.site.register(User, UserProfileAdmin)
