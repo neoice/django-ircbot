@@ -26,6 +26,14 @@ class DjangoBot(bot.SimpleBot):
 		target = ''
 		args = ''
 
+		# don't log my own events, those should already be IRCActions!
+		if event.source == self.nickname:
+			return
+
+		# chat messages are not events.
+		if event.command == "PRIVMSG":
+			return
+
 		# determine command
 		if event.command == "MODE":
 			full = "MODE " + event.params[0]
