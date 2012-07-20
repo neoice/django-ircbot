@@ -16,6 +16,7 @@ from ircutils import bot, format, start_all
 # python
 import ConfigParser
 from datetime import datetime, timedelta
+import logging
 from threading import Timer
 from time import sleep
 
@@ -135,6 +136,7 @@ class DjangoBot(bot.SimpleBot):
 
 	### events ###
 	def on_any(self, event):
+		logging.debug( str(event.source) + ": " + str(event.command) + " " + str(event.params) )
 		self.process_queue(event)
 		self.log_event(event)
 		self.last_event = datetime.now()
@@ -188,6 +190,7 @@ def config_parsing():
 		configs['CHANNEL'] = config.get('irc', 'channel')
 		configs['NICKSERV'] = config.get('irc', 'nickserv')
 		configs['NS_PASS'] = config.get('irc', 'ns_pass')
+		configs['LOGFILE'] = config.get('irc', 'logfile')
 	except:
 		print "invalid or incomplete configuration data provided."
 		print sys.exc_info()
@@ -199,6 +202,8 @@ def config_parsing():
 if __name__ == "__main__":
 	configs = config_parsing()
 
+	logging.basicConfig(filename=configs['LOGFILE'],level=logging.DEBUG)
+
 	timeout = timedelta(0, 180)
 	def bot_poll():
 		while True:
@@ -206,7 +211,7 @@ if __name__ == "__main__":
 			time_since_last = datetime.now() - bot.last_event
 
 			if ( time_since_last > timeout):
-				print "we look disconnected!"
+				logging.warning("we look disconnected!")
 				bot.disconnect()
 				bot.connect( configs['SERVER'] )
 				bot.start()
@@ -217,4 +222,5 @@ if __name__ == "__main__":
 
 	bot = DjangoBot( configs['NICK'] )
 	bot.connect( configs['SERVER'] )
+	logging.debug("starting bot")
 	bot.start()
