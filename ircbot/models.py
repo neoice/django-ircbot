@@ -1,6 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class IRBan(models.Model):
+	user = models.ForeignKey(User, null=True, blank=True)
+
+	start_datetime = models.DateTimeField(auto_now_add=True)
+	end_datetime = models.DateTimeField(null=True, blank=True)
+
+	hostname = models.CharField(max_length=255)
+	comment = models.CharField(max_length=1023, null=True, blank=True, help_text = "it is **highly** recommended to include a comment.")
+
+	active = models.BooleanField()
+
+	def __unicode__(self):
+		return self.hostname
+
 class IRCCommand(models.Model):
 	name = models.CharField(max_length=63, unique=True)
 	command = models.CharField(max_length=63, unique=True)
