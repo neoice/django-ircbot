@@ -2,9 +2,9 @@
 
 # WSGI-style path setup
 import os,sys
-sys.path.append("/home/ecanada/django")
-sys.path.append("/home/ecanada/django/ircbot_app")
-os.environ["DJANGO_SETTINGS_MODULE"] = "ircbot_app.settings"
+cwd = os.path.realpath(__file__)
+sys.path.append(cwd)
+os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
 
 # django
 from django.contrib.auth.models import User
