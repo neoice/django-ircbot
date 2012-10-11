@@ -171,6 +171,10 @@ class DjangoBot(bot.SimpleBot):
 	#			c = user.automode.command.command.split()
 	#			self.execute( str(c[0]), str(event.target), str(c[1]), str(event.source) )
 
+	def on_disconnect(self, event):
+		logging.warning("we look disconnected!")
+		self.connect( configs['SERVER'] )
+
 def config_parsing():
 	# open config file
 	try:
@@ -204,21 +208,21 @@ if __name__ == "__main__":
 
 	logging.basicConfig(filename=configs['LOGFILE'],level=logging.DEBUG)
 
-	timeout = timedelta(0, 180)
-	def bot_poll():
-		while True:
-			sleep(30)
-			time_since_last = datetime.now() - bot.last_event
+	#timeout = timedelta(0, 180)
+	#def bot_poll():
+	#	while True:
+	#		sleep(30)
+	#		time_since_last = datetime.now() - bot.last_event
 
-			if ( time_since_last > timeout):
-				logging.warning("we look disconnected!")
-				bot.disconnect()
-				bot.connect( configs['SERVER'] )
-				bot.start()
+	#		if ( time_since_last > timeout):
+	#			logging.warning("we look disconnected!")
+	#			bot.disconnect()
+	#			bot.connect( configs['SERVER'] )
+	#			bot.start()
 
 
-	poller = Timer(15.0, bot_poll)
-	poller.start()
+	#poller = Timer(15.0, bot_poll)
+	#poller.start()
 
 	bot = DjangoBot( configs['NICK'] )
 	bot.connect( configs['SERVER'] )
