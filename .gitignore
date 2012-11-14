@@ -3,7 +3,6 @@ bot.cfg
 settings_local.py
 # python junk
 *.pyc
-__init__.py
 # libraries
 logentry_admin
 ircutils
