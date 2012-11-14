@@ -1,0 +1,4 @@
+distribute
+django
+MySQL-python
+ircutils
