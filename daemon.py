@@ -21,6 +21,11 @@ from threading import Timer
 from time import sleep
 
 class DjangoBot(bot.SimpleBot):
+	def __init__(self, nick):
+		bot.SimpleBot.__init__(self, nick)
+		self.nick = nick
+		self.real_name = nick
+
 	last_event = datetime.now()
 
 	def log_event(self, event):
