@@ -54,7 +54,7 @@ class IRCAction(models.Model):
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User)
-	level = models.IntegerField()
+	level = models.IntegerField(default=0)
 	#vhosts = models.ManyToManyField(IRCHost, null=True, blank=True)
 	# moved here even though we don't support automodes currently
 	#automode = models.ForeignKey(IRCAutoMode, null=True, blank=True)
