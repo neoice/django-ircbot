@@ -1,6 +1,7 @@
 # configs
 bot.cfg
 settings_local.py
+*.db
 # python junk
 *.pyc
 # libraries

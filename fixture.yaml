@@ -1,0 +1,6 @@
+- fields: {chat_command: '!op', color: ' ', command: MODE +o, level: 3, name: Op}
+  model: ircbot.irccommand
+  pk: 1
+- fields: {chat_command: '!deop', color: ' ', command: MODE -o, level: 3, name: DeOp}
+  model: ircbot.irccommand
+  pk: 2
