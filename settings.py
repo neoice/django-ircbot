@@ -58,19 +58,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-INSTALLED_APPS = (
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'django.contrib.sessions',
-	'django.contrib.sites',
-	'complaints',
-	'ircbot',
-	'reversion',
-	'logentry_admin',
-	'django.contrib.admin',
-	'south',
-)
-
 AUTH_PROFILE_MODULE = "ircbot.UserProfile"
 
 from settings_local import *
