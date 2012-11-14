@@ -1,6 +1,6 @@
 # configs
 bot.cfg
-settings.py
+settings_local.py
 # python junk
 *.pyc
 __init__.py

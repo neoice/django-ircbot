@@ -1,0 +1,7 @@
+[irc]
+nick = DjangoBot
+server = irc.example.com
+channel = #mychannel
+nickserv = false
+ns_pass = password
+logfile = bot.log
